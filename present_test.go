@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/katexochen/present"
 	"github.com/stretchr/testify/assert"
-	"github.com/yi-jiayu/PRESENT.go"
 )
 
 var cases = []struct {
