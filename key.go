@@ -2,7 +2,6 @@ package present
 
 // key represents an implementation of the PRESENT key schedule for deriving the round keys.
 type key interface {
-	copy() key
 	rotate()
 	sBox()
 	xor(ctr uint64)
@@ -30,13 +29,11 @@ func updateKey(k key, ctr int) {
 	k.xor(uint64(ctr))
 }
 
-// expandKey copies and expands k, sending the derived round keys to roundKeys.
-func expandKey(k key, roundKeys chan<- uint64) {
-	k = k.copy()
+// expandKey calculates the round keys and writes them into the given slice.
+func expandKey(k key, numRounds int, dstRoundKeys []uint64) {
 	for ctr := 0; ctr < numRounds; ctr++ {
-		roundKeys <- k.roundKey()
+		dstRoundKeys[ctr] = k.roundKey()
 		updateKey(k, ctr+1)
 	}
-	roundKeys <- k.roundKey()
-	close(roundKeys)
+	dstRoundKeys[numRounds] = k.roundKey()
 }

@@ -5,11 +5,6 @@ type key80 struct {
 	A, B uint64
 }
 
-func (k *key80) copy() key {
-	cpy := *k
-	return &cpy
-}
-
 func (k *key80) rotate() {
 	w := k.A & 0xfffffffffff80000
 	x := k.A & 0x7fff8
@@ -22,7 +17,7 @@ func (k *key80) rotate() {
 
 func (k *key80) sBox() {
 	w := (k.A >> 60) & 0xF
-	x := sBox[w]
+	x := SBox[w]
 	y := uint64(x) << 60
 	z := k.A & 0x0fffffffffffffff
 

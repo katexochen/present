@@ -6,7 +6,6 @@
 package present
 
 import (
-	"crypto/cipher"
 	"strconv"
 )
 
@@ -17,23 +16,27 @@ func (k KeySizeError) Error() string {
 	return "present: invalid key size " + strconv.Itoa(int(k))
 }
 
-// NewCipher creates a new cipher.Block.
+// NewCipher creates a new Block.
 // The argument should be the PRESENT key,
 // which is either 10 or 16 bytes long
 // for key lengths of 80 bits and 128 bits respectively.
-func NewCipher(key []byte) (b cipher.Block, err error) {
-	k := len(key)
-	switch k {
-	default:
-		err = KeySizeError(k)
+func NewCipher(key []byte, rounds int) (*Block, error) {
+	switch len(key) {
 	case 10:
-		b = &block{
-			Key: newKey80(key),
+		b := &Block{
+			keySize:   len(key),
+			roundKeys: make([]uint64, rounds+1),
+			numRounds: rounds,
 		}
+		return b, b.SetKey(key)
 	case 16:
-		b = &block{
-			Key: newKey128(key),
+		b := &Block{
+			keySize:   len(key),
+			roundKeys: make([]uint64, rounds+1),
+			numRounds: rounds,
 		}
+		return b, b.SetKey(key)
+	default:
+		return nil, KeySizeError(len(key))
 	}
-	return
 }

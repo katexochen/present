@@ -24,8 +24,8 @@ func (k *key128) sBox() {
 	x := (k.A >> 60) & 0xF
 	y := (k.A >> 56) & 0xF
 
-	p := sBox[x]
-	q := sBox[y]
+	p := SBox[x]
+	q := SBox[y]
 
 	a := uint64(p) << 60
 	b := uint64(q) << 56

@@ -1,6 +1,7 @@
 package present_test
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"testing"
@@ -63,6 +64,8 @@ var cases = []struct {
 	},
 }
 
+const defaultRounds = 31
+
 func decodeHex(s string) []byte {
 	src := []byte(s)
 	dst := make([]byte, hex.DecodedLen(len(src)))
@@ -76,7 +79,7 @@ func decodeHex(s string) []byte {
 func TestNewCipher(t *testing.T) {
 	t.Run("invalid key size", func(t *testing.T) {
 		var key []byte
-		_, err := present.NewCipher(key)
+		_, err := present.NewCipher(key, defaultRounds)
 		if err == nil {
 			t.Fail()
 		}
@@ -89,17 +92,19 @@ func TestBlock_Encrypt(t *testing.T) {
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("%d-bit key", len(c.Key)*4), func(t *testing.T) {
 			key := decodeHex(c.Key)
-			cipher, err := present.NewCipher(key)
+			cipher, err := present.NewCipher(key, defaultRounds)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			plaintext := decodeHex(c.Plaintext)
-			dst := make([]byte, cipher.BlockSize())
-			cipher.Encrypt(dst, plaintext)
+			plaintextBytes := decodeHex(c.Plaintext)
+			plaintext := binary.BigEndian.Uint64(plaintextBytes)
 
-			ciphertext := decodeHex(c.Ciphertext)
-			assert.Equal(t, ciphertext, dst)
+			ciphertext := cipher.Encrypt(plaintext)
+
+			expectedCiphertextBytes := decodeHex(c.Ciphertext)
+			expectedCiphertext := binary.BigEndian.Uint64(expectedCiphertextBytes)
+			assert.Equal(t, expectedCiphertext, ciphertext)
 		})
 	}
 }
@@ -108,17 +113,19 @@ func TestBlock_Decrypt(t *testing.T) {
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("%d-bit key", len(c.Key)*4), func(t *testing.T) {
 			key := decodeHex(c.Key)
-			cipher, err := present.NewCipher(key)
+			cipher, err := present.NewCipher(key, defaultRounds)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			ciphertext := decodeHex(c.Ciphertext)
-			dst := make([]byte, cipher.BlockSize())
-			cipher.Decrypt(dst, ciphertext)
+			ciphertextBytes := decodeHex(c.Ciphertext)
+			ciphertext := binary.BigEndian.Uint64(ciphertextBytes)
 
-			plaintext := decodeHex(c.Plaintext)
-			assert.Equal(t, plaintext, dst)
+			plaintext := cipher.Decrypt(ciphertext)
+
+			expectedPlaintextBytes := decodeHex(c.Plaintext)
+			expectedPlaintext := binary.BigEndian.Uint64(expectedPlaintextBytes)
+			assert.Equal(t, expectedPlaintext, plaintext)
 		})
 	}
 }
