@@ -9,10 +9,10 @@ import (
 	"strconv"
 )
 
-// KeySizeError represents an invalid PRESENT key length.
-type KeySizeError int
+// keySizeError represents an invalid PRESENT key length.
+type keySizeError int
 
-func (k KeySizeError) Error() string {
+func (k keySizeError) Error() string {
 	return "present: invalid key size " + strconv.Itoa(int(k))
 }
 
@@ -37,6 +37,6 @@ func NewCipher(key []byte, rounds int) (*Block, error) {
 		}
 		return b, b.SetKey(key)
 	default:
-		return nil, KeySizeError(len(key))
+		return nil, keySizeError(len(key))
 	}
 }

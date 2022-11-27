@@ -80,10 +80,8 @@ func TestNewCipher(t *testing.T) {
 	t.Run("invalid key size", func(t *testing.T) {
 		var key []byte
 		_, err := present.NewCipher(key, defaultRounds)
-		if err == nil {
-			t.Fail()
-		}
-		assert.Equal(t, present.KeySizeError(0), err)
+
+		assert.Error(t, err)
 		assert.Equal(t, "present: invalid key size 0", err.Error())
 	})
 }
