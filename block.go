@@ -44,6 +44,7 @@ type Block struct {
 	numRounds int
 }
 
+// SetKey sets the key of the cipher and calculates the round keys.
 func (b *Block) SetKey(key []byte) error {
 	if len(key) != b.keySize {
 		return keySizeError(len(key))
@@ -61,6 +62,12 @@ func (b *Block) SetKey(key []byte) error {
 	return nil
 }
 
+// RoundKeys returns the round keys of the cipher.
+func (b *Block) RoundKeys() []uint64 {
+	return b.roundKeys
+}
+
+// Encrypt encrypts a uint64.
 func (b *Block) Encrypt(m uint64) uint64 {
 	for i := 0; i < b.numRounds; i++ {
 		m ^= b.roundKeys[i]
@@ -72,6 +79,7 @@ func (b *Block) Encrypt(m uint64) uint64 {
 	return m
 }
 
+// Decrypt decrypts a uint64.
 func (b *Block) Decrypt(c uint64) uint64 {
 	c ^= b.roundKeys[b.numRounds]
 	for i := b.numRounds - 1; i >= 0; i-- {
