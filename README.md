@@ -1,5 +1,8 @@
-# PRESENT.go
+# PRESENT cipher
 [![GoDoc](https://godoc.org/github.com/katexochen/present?status.svg)](https://godoc.org/github.com/katexochen/present)
+
+> **Warning**
+> This implementation is made for research only. Don't use it in production.
 
 Go implementation of the PRESENT ultra-lightweight block cipher as defined by Bogdanov et al. [1].
 
